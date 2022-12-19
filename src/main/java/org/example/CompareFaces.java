@@ -8,6 +8,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
+import java.util.Arrays;
+
 public class CompareFaces {
     public static void main(String[] args) {
         // Load the OpenCV library
@@ -37,14 +39,18 @@ public class CompareFaces {
         MatOfRect imageFaceDetections = new MatOfRect();
         faceDetector.detectMultiScale(image, imageFaceDetections);
 
+        System.out.println(Arrays.toString(faceDetections.toArray()));
+        System.out.println(Arrays.toString(imageFaceDetections.toArray()));
+
         // Compare the faces using the compareHist() method of the Core class
         if (faceDetections.toArray().length > 0 && imageFaceDetections.toArray().length > 0) {
             Mat face = new Mat(frame, faceDetections.toArray()[0]);
             Mat imageFace = new Mat(image, imageFaceDetections.toArray()[0]);
-            double similarity = Core.compareHist(face, imageFace, Imgproc.HISTCMP_CORREL);
-            double similarity2 = Core.compare(face, imageFace);
+//            double similarity = Imgproc.compareHist(face, imageFace, Imgproc.HISTCMP_CORREL);
+            double similarity = Imgproc.compareHist(face, imageFace, 1);
             System.out.println("Similarity: " + similarity);
         }
+
 
         // Release the video stream
         videoCapture.release();
