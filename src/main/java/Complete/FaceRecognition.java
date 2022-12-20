@@ -1,5 +1,6 @@
 package Complete;
 
+import nu.pattern.OpenCV;
 import org.bytedeco.librealsense.frame;
 import org.opencv.core.*;
 import org.opencv.highgui.HighGui;
@@ -43,7 +44,9 @@ public class FaceRecognition {
 
     public static void TakePictureAndDetectFace(String outputFileName) {
         // Load the OpenCV library
+        nu.pattern.OpenCV.loadLocally();
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        OpenCV.loadShared();
         // Create a new video capture object
         // Check if the video capture object was created successfully
         // Create a new matrix to store the video frame
@@ -114,7 +117,8 @@ public class FaceRecognition {
     public static void FaceSimilarityVideoAndPicture(String basePicture) {
         System.setProperty("java.library.path", "C:/opencv/build/java/x64");
         // Load the OpenCV library
-        System.loadLibrary("opencv_java460");
+//        System.loadLibrary("opencv_java460");
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         // Create a new VideoCapture object
         VideoCapture capture = new VideoCapture(0);
