@@ -14,6 +14,7 @@ public class FaceRecognition {
 
     public static void TakePicture(String outputFileName) {
         // Load the OpenCV library
+        nu.pattern.OpenCV.loadLocally();
         System.setProperty("java.library.path", "C:/opencv/build/java/opencv-460.jar");
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
