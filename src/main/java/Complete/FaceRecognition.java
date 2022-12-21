@@ -1,5 +1,7 @@
 package Complete;
 
+import nu.pattern.OpenCV;
+import org.bytedeco.librealsense.frame;
 import org.opencv.core.*;
 import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -42,7 +44,9 @@ public class FaceRecognition {
 
     public static void TakePictureAndDetectFace(String outputFileName) {
         // Load the OpenCV library
+        nu.pattern.OpenCV.loadLocally();
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        OpenCV.loadShared();
         // Create a new video capture object
         // Check if the video capture object was created successfully
         // Create a new matrix to store the video frame
@@ -57,7 +61,7 @@ public class FaceRecognition {
             // Read a frame from the video capture object
             capture.read(frame);
             // Save the frame to a file
-            org.opencv.imgcodecs.Imgcodecs.imwrite(outputFileName, frame);
+            Imgcodecs.imwrite(outputFileName, frame);
             // Release the video capture object
             capture.release();
             // Load the input image
@@ -113,7 +117,8 @@ public class FaceRecognition {
     public static void FaceSimilarityVideoAndPicture(String basePicture) {
         System.setProperty("java.library.path", "C:/opencv/build/java/x64");
         // Load the OpenCV library
-        System.loadLibrary("opencv_java460");
+//        System.loadLibrary("opencv_java460");
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         // Create a new VideoCapture object
         VideoCapture capture = new VideoCapture(0);
@@ -132,7 +137,17 @@ public class FaceRecognition {
             Mat frame = new Mat();
             capture.read(frame);
             // Detect faces in the frame
-            compareFace(basePicture,frame);
+
+            MatOfRect faceDetections = new MatOfRect();
+            faceClassifier.detectMultiScale(frame, faceDetections);
+
+            try {
+                Rect faceRect = faceDetections.toArray()[0]; // assume there is only one face
+                Mat face = new Mat(frame, faceRect);
+                compareFace(basePicture, face);
+            } catch (Exception e) {
+                System.out.println("No face detected");
+            }
             MatOfRect faces = new MatOfRect();
             faceClassifier.detectMultiScale(frame, faces);
 
@@ -166,5 +181,27 @@ public class FaceRecognition {
         double similarity = Imgproc.compareHist(hist1, hist2, Imgproc.CV_COMP_CORREL);
         System.out.println("Similarity: " + similarity);
         return similarity;
+    }
+
+    public static void cutOnlyFace(String filename) {
+        // Load the OpenCV library
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+        // Load the input image
+        Mat image = Imgcodecs.imread(filename);
+
+        // Load the cascade classifier
+        CascadeClassifier faceDetector = new CascadeClassifier("C:/opencv/build/etc/haarcascades/haarcascade_frontalface_default.xml");
+
+        // Detect faces in the image
+        MatOfRect faceDetections = new MatOfRect();
+        faceDetector.detectMultiScale(image, faceDetections);
+
+        // Crop the image to just the face
+        Rect faceRect = faceDetections.toArray()[0]; // assume there is only one face
+        Mat face = new Mat(image, faceRect);
+
+        // Save the output image
+        Imgcodecs.imwrite("Test.jpg", face);
     }
 }
